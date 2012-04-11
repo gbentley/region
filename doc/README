@@ -1,0 +1,31 @@
+REGION EXTENSION
+================
+
+When geo-detection is triggered
+====================================
+Geo-detection is triggered when a user requests the home page or a non-region-specific URL (e.g /verve).
+The web server redirects the browser to /region/index/ which then takes the requested URL and interprets it.
+TODO: include as autoload so Apache redirects not required.
+
+
+How the geo-detection works
+===========================
+
+In order to serve up a siteaccess, the region extension must formulate a region via a country code and a language.
+
+1. Country code
+	- GET variable 'TESTIP' (IP address) or 'country' (2-char country code)
+	- it will first try to find a preferred region by looking up the user's IP address in a MaxMind Geo-lite database
+   (sucked into MySQL DB tables)
+   
+2. Language
+   - GET variable 'lang' (containing 3-char language code)
+   - Browser languages
+
+   
+It formulates the region in the following order:
+
+1. Exact match of region (language + country code) in list of available regions ("LanguageSA" under "RegionalSettings" in site.ini)
+2. First item in above list with a country match
+3. First item in above list with a language match
+4. First item in above list
