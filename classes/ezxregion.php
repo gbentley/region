@@ -274,14 +274,33 @@ class ezxRegion
             }
         }
         
-        //IF NO LOCALE MATCH, GET REGION FROM LIST OF PREFFERED REGIONS
+        //IF NO LOCALE MATCH, CHECK FOR REGION IN GROUPINGS
+        if ( ! $preferred_region )
+        {
+        	$regionini = eZINI::instance( 'region.ini' );
+        	$region_groups = $regionini->variableArray('Regions', 'LocaleCountryList');
+        	eZDebug::writeDebug( $region_groups, 'Region groups' );
+        	eZDebug::writeDebug( $ccode, 'Country code' );
+        	
+        	// CHECK THAT THE REGION EXISTS IN THE LANGUAGE-SITEACCESS LIST
+        	foreach ( $region_groups as $region_group => $countries )
+        	{
+        		if ( in_array( $ccode, $countries ) && in_array($region_group, $regions) )
+        		{
+        			$preferred_region = $region_group;
+        			break;
+        		}
+        	}
+        }
+        
+        //IF NO LOCALE MATCH, GET REGION FROM LIST OF PREFERRED REGIONS
         if ( ! $preferred_region )
         {
             $keys = array_keys( $preferred_regions );
             $preferred_region = $keys[0];
         }
         
-        //IF NO REGION MATCH, GET REGION FROM LIST OF PREFFERED LANGUAGES
+        //IF NO REGION MATCH, GET REGION FROM LIST OF PREFERRED LANGUAGES
         if ( ! $preferred_region )
         {
             $keys = array_keys( $preferred_languages );
