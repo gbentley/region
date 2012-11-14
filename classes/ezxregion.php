@@ -240,7 +240,7 @@ class ezxRegion
         
         // IF LANG NOT SET, GET FROM BROWSER
         $lcode = ($lcode) ? array($lcode => 1) : ezxISO936::preferredLanguages();
-        $regions = $siteini->variableArray('RegionalSettings', 'LanguageSA');
+        $regions = (array) $siteini->variableArray('RegionalSettings', 'LanguageSA');
         $regions_keys = array_keys($regions);
         eZDebug::writeDebug( $regions_keys, 'Regions keys' );
         $preferred_regions = array();
