@@ -24,9 +24,9 @@ class ezxRegion
         eZDebug::writeDebug($url,'url object');
         //exit();
         $params = $url->getParams();
-        
+
         eZDebug::writeDebug($params, 'params');
-        
+
         $url_excludes = array_merge( $url_excludes, eZINI::instance( 'region.ini' )->variable( 'Settings', 'URLExcludes' ) );
         # Checking for excluded URLs
         $current_url = implode( '/', $params );
@@ -40,7 +40,7 @@ class ezxRegion
                 }
             }
         }
-        
+
         if ( ! is_array( $SessionName ) && $SessionName == '' )
         {
             $SessionName = 'eZSESSID';
@@ -58,11 +58,11 @@ class ezxRegion
                         $foundSessionName = true;
                     }
                 }
-                
+
                 if ( $foundSessionName )
                 {
-                    if ( $redirectRoot and array_key_exists( 'EZREGION', $_COOKIE ) and 
-                         is_array( $params ) and count( $params ) == 0 and 
+                    if ( $redirectRoot and array_key_exists( 'EZREGION', $_COOKIE ) and
+                         is_array( $params ) and count( $params ) == 0 and
                          file_exists( 'settings/siteaccess/' . $_COOKIE['EZREGION'] ) )
                     {
                         $redirectWithCookie = true;
@@ -85,11 +85,11 @@ class ezxRegion
                     $foundSessionName = true;
                 }
             }
-            
+
             if ( $foundSessionName )
             {
-                if ( $redirectRoot and array_key_exists( 'EZREGION', $_COOKIE ) and 
-                     is_array( $params ) && count( $params ) == 0 and 
+                if ( $redirectRoot and array_key_exists( 'EZREGION', $_COOKIE ) and
+                     is_array( $params ) && count( $params ) == 0 and
                      file_exists( 'settings/siteaccess/' . $_COOKIE['EZREGION'] ) )
                 {
                     $redirectWithCookie = true;
@@ -101,12 +101,12 @@ class ezxRegion
                 }
             }
         }
-        
+
         if ( isset( $params[0] ) and file_exists( 'settings/siteaccess/' . $params[0] ) )
         {
         	eZDebug::writeDebug('exists', 'Params & siteaccess');
             $siteaccess = $params[0];
-            if ( array_key_exists( 'EZREGION', $_COOKIE ) and 
+            if ( array_key_exists( 'EZREGION', $_COOKIE ) and
                  $_COOKIE['EZREGION'] === $siteaccess )
             {
                 return;
@@ -124,33 +124,33 @@ class ezxRegion
                 $siteaccess = false;
             }
         }
-        
+
         if ( isset( $params[0] ) and $params[0] == 'ezinfo' and isset( $params[1] ) and $params[1] == 'is_alive' )
         {
             return;
         }
-        if ( ( isset( $params[0] ) and 
-               $params[0] == 'region' and $params[1] == 'index' ) or 
-	           ( $siteaccess and isset( $params[1] ) and 
-	             $params[1] == 'region' and isset( $params[1] ) and 
+        if ( ( isset( $params[0] ) and
+               $params[0] == 'region' and $params[1] == 'index' ) or
+	           ( $siteaccess and isset( $params[1] ) and
+	             $params[1] == 'region' and isset( $params[1] ) and
 	             $params[2] == 'index' ) )
         {
             return;
         }
         if ( $siteaccess )
         {
-            $paramnew = array( 
-                $siteaccess , 
-                'region' , 
-                'index' , 
-                $siteaccess 
+            $paramnew = array(
+                $siteaccess ,
+                'region' ,
+                'index' ,
+                $siteaccess
             );
         }
         else
         {
-            $paramnew = array( 
-                'region' , 
-                'index' 
+            $paramnew = array(
+                'region' ,
+                'index'
             );
         }
         $query = $url->getQuery();
@@ -159,14 +159,14 @@ class ezxRegion
         {
             array_shift( $params );
         }
-        
+
         if ( count( $params ) )
         {
             $query['URL'] = join( '/', $params );
         }
         setcookie( "COOKIETEST", 1, time() + 3600 * 24 * 365, '/' );
         $query['COOKIETEST'] = 1;
-        
+
         $url->setQuery( $query );
         $url->params = $paramnew;
         header( 'Location: ' . $url->buildUrl() );
@@ -175,51 +175,51 @@ class ezxRegion
 
     static function isBot()
     {
-        $bot_list = array( 
-            "Teoma" , 
-            "alexa" , 
-            "froogle" , 
+        $bot_list = array(
+            "Teoma" ,
+            "alexa" ,
+            "froogle" ,
             //"Gigabot" ,
-            "inktomi" , 
-            "looksmart" , 
+            "inktomi" ,
+            "looksmart" ,
             //"URL_Spider_SQL" ,
-            "Firefly" , 
-            "NationalDirectory" , 
-            "Ask Jeeves" , 
-            "TECNOSEEK" , 
-            "InfoSeek" , 
+            "Firefly" ,
+            "NationalDirectory" ,
+            "Ask Jeeves" ,
+            "TECNOSEEK" ,
+            "InfoSeek" ,
             //"WebFindBot" ,
             //"girafabot" ,
-            "crawler" , 
-            "www.galaxy.com" , 
+            "crawler" ,
+            "www.galaxy.com" ,
             //"Googlebot" ,
-            "Scooter" , 
-            "Slurp" , 
+            "Scooter" ,
+            "Slurp" ,
             //"msnbot" ,
-            "appie" , 
-            "FAST" , 
-            'Slurp' , 
+            "appie" ,
+            "FAST" ,
+            'Slurp' ,
             //'CazoodleBot' ,
             //'msnbot' ,
-            'InfoPath' , 
+            'InfoPath' ,
             //'Baiduspider' ,
-            "WebBug" , 
-            "Spade" , 
-            "ZyBorg" , 
-            "rabaz" , 
+            "WebBug" ,
+            "Spade" ,
+            "ZyBorg" ,
+            "rabaz" ,
             //"Baiduspider" ,
-            "Feedfetcher-Google" , 
-            "TechnoratiSnoop" , 
+            "Feedfetcher-Google" ,
+            "TechnoratiSnoop" ,
             //"Rankivabot" ,
-            "Mediapartners-Google" , 
+            "Mediapartners-Google" ,
             //"Sogou web spider" ,
             //"WebAlta Crawler",
-            "bot" , 
-            "spider" , 
-            "search" , 
-            "linkidator" 
+            "bot" ,
+            "spider" ,
+            "search" ,
+            "linkidator"
         );
-        
+
         if ( preg_match( "/" . join( '|', $bot_list ) . "/i", $_SERVER['HTTP_USER_AGENT'] ) )
         {
             return true;
@@ -237,20 +237,20 @@ class ezxRegion
         eZDebug::writeDebug( 'Starting...', 'ezxRegion::getRegionData()' );
         $siteini = eZINI::instance( 'site.ini' );
         $ccode = ($ccode) ? strtoupper( $ccode ) : ezxISO3166::preferredCountry( $address );
-        
+
         // IF LANG NOT SET, GET FROM BROWSER
         $lcode = ($lcode) ? array($lcode => 1) : ezxISO936::preferredLanguages();
         $regions = (array) $siteini->variableArray('RegionalSettings', 'LanguageSA');
         $regions_keys = array_keys($regions);
         eZDebug::writeDebug( $regions_keys, 'Regions keys' );
         $preferred_regions = array();
-        
+
         foreach ( $regions as $key => $region )
         {
             if ( $ccode and strpos( $key, '-' . $ccode ) !== false )
                 $preferred_regions[$key] = $region;
         }
-        
+
         $langs = array_keys( $lcode );
         $preferred_languages = array();
         foreach ( $regions as $key => $region )
@@ -273,7 +273,7 @@ class ezxRegion
                 break;
             }
         }
-        
+
         //IF NO LOCALE MATCH, CHECK FOR REGION IN GROUPINGS
         if ( ! $preferred_region )
         {
@@ -281,7 +281,7 @@ class ezxRegion
         	$region_groups = $regionini->variableArray('Regions', 'LocaleCountryList');
         	eZDebug::writeDebug( $region_groups, 'Region groups' );
         	eZDebug::writeDebug( $ccode, 'Country code' );
-        	
+
         	// CHECK THAT THE REGION EXISTS IN THE LANGUAGE-SITEACCESS LIST
         	foreach ( $region_groups as $region_group => $countries )
         	{
@@ -292,14 +292,14 @@ class ezxRegion
         		}
         	}
         }
-        
+
         //IF NO LOCALE MATCH, GET REGION FROM LIST OF PREFERRED REGIONS
         if ( ! $preferred_region )
         {
             $keys = array_keys( $preferred_regions );
             $preferred_region = $keys[0];
         }
-        
+
         //IF NO REGION MATCH, GET REGION FROM LIST OF PREFERRED LANGUAGES
         if ( ! $preferred_region )
         {
@@ -311,10 +311,90 @@ class ezxRegion
             eZDebug::writeError( 'No proper region has been found', 'ezxRegion::getRegionData()' );
             return false;
         }
-        return array( 
-            'preferred_region' => $preferred_region , 
-            'preferred_languages' => $preferred_languages , 
-            'preferred_regions' => $preferred_regions 
+        return array(
+            'preferred_region' => $preferred_region ,
+            'preferred_languages' => $preferred_languages ,
+            'preferred_regions' => $preferred_regions
         );
     }
+
+	public static function getRegionURL( $URLPath ) {
+		if ( array_key_exists( 'EZREGION', $_COOKIE ) )
+		{
+			eZDebug::writeDebug( $_COOKIE['EZREGION'], 'region cookie');
+			$selection = $_COOKIE['EZREGION'];
+		}
+		else
+		{
+			$lang = ( isset( $_GET['lang'] ) ) ? $_GET['lang'] : null;
+			if ( array_key_exists( 'TESTIP', $_GET ) and ezxISO3166::validip( $_GET['TESTIP'] ) )
+			{
+				$regiondata = ezxRegion::getRegionData( $_GET['TESTIP'], null, $lang );
+				eZDebug::writeDebug( $_GET['TESTIP'], 'TEST IP ADDRESS' );
+				eZDebug::writeDebug( $regiondata, 'TEST REGIONAL DATA' );
+			}
+			elseif ( array_key_exists( 'country', $_GET ) )
+			{
+				$regiondata = ezxRegion::getRegionData( null , $_GET['country'], $lang);
+				eZDebug::writeDebug( $_GET['country'], 'TEST IP ADDRESS' );
+				eZDebug::writeDebug( $regiondata, 'TEST REGIONAL DATA' );
+			}
+			else
+			{
+				$regiondata = ezxRegion::getRegionData( ezxISO3166::getRealIpAddr() );
+				eZDebug::writeDebug( ezxISO3166::getRealIpAddr(), 'REMOTE IP ADDRESS' );
+			}
+			setcookie("EZREGION", $regiondata['preferred_region'], time()+3600*24*365 , '/' );
+
+			if ( array_key_exists( 'preferred_region', $regiondata ) )
+			{
+				$selection = $regiondata['preferred_region'];
+			}
+			else
+			{
+				$selection = false;
+			}
+		}
+
+		$siteini = eZINI::instance( "site.ini");
+		$destinationSiteAccess = $siteini->variable('RegionalSettings', 'LanguageSA');
+
+		// Steps for language switcher classes
+
+		// 0. Module params are sent to constructor to process the request.
+		$handlerOptions = new ezpExtensionOptions();
+		$handlerOptions->iniFile = 'site.ini';
+		$handlerOptions->iniSection = 'RegionalSettings';
+		$handlerOptions->iniVariable = 'LanguageSwitcherClass';
+		$handlerOptions->handlerParams = array( $URLPath );
+		$langSwitch = eZExtension::getHandlerClass( $handlerOptions );
+
+		// 1. destination siteaccess is set
+		$langSwitch->setDestinationSiteAccess( $destinationSiteAccess[$selection] );
+
+		// 2. The process hook is called, it is up to each class what this step involves.
+		$langSwitch->process();
+
+		// 3. The final URL is fetched from the language switcher class. This URL must
+		// point to the correct full URL including host (for host based mapping) and
+		// translated URL alias where applicable.
+		return $langSwitch->destinationUrl();
+	}
+
+	public static function requestInput( $uri ) {
+		$mathType = (int) $GLOBALS['eZCurrentAccess']['type'];
+
+		if(
+			isset( $_COOKIE['EZREGION'] ) === false
+			&& $GLOBALS['eZCurrentAccess']['name'] == eZINI::instance( 'site.ini' )->variable( 'SiteSettings', 'DefaultAccess' )
+		) {
+			$p = array(
+				'Parameters'     => array( false ),
+				'UserParameters' => array()
+			);
+			$url = self::getRegionURL( $p ) . $uri->uriString() . eZSys::queryString();
+			header( 'Location: ' . $url );
+			eZExecution::cleanExit();
+		}
+	}
 }
