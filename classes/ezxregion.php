@@ -385,7 +385,7 @@ class ezxRegion
 		$mathType = (int) $GLOBALS['eZCurrentAccess']['type'];
 
 		if(
-			isset( $_COOKIE['EZREGION'] ) === false
+			count( $GLOBALS['eZCurrentAccess']['uri_part'] ) == 0 
 			&& $GLOBALS['eZCurrentAccess']['name'] == eZINI::instance( 'site.ini' )->variable( 'SiteSettings', 'DefaultAccess' )
 		) {
 			$p = array(
