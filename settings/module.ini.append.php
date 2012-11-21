@@ -2,4 +2,5 @@
 
 [ModuleSettings]
 ExtensionRepositories[]=region
+ModuleList[]=region
 */ ?>
