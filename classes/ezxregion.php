@@ -285,7 +285,7 @@ class ezxRegion
         	// CHECK THAT THE REGION EXISTS IN THE LANGUAGE-SITEACCESS LIST
         	foreach ( $region_groups as $region_group => $countries )
         	{
-        		if ( in_array( $ccode, $countries ) && in_array($region_group, $regions) )
+        		if ( in_array( $ccode, $countries ) && array_key_exists($region_group, $regions) )
         		{
         			$preferred_region = $region_group;
         			break;
