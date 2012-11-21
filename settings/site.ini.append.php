@@ -15,4 +15,6 @@ ExtensionAutoloadPath[]=region
 [SSLZoneSettings]
 ModuleViewAccessMode[region/*]=keep
 
+[Event]
+Listeners[]=request/input@ezxRegion::requestInput
 */ ?>
