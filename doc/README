@@ -3,7 +3,8 @@ REGION EXTENSION
 
 Region extension
 ===============================================================================
-Author: Bj?rn Dieding, http://www.xrow.com
+Original Author: Bj?rn Dieding, http://www.xrow.com
+Additions by: Geoff Bentley, Serhey Dolgushev
 
 The region extension redirects a user to a siteaccess based on his ip address.
 This can be done in the background (the ip address is checked in the database)
@@ -23,8 +24,6 @@ http://projects.ez.no/region
 When geo-detection is triggered
 ====================================
 Geo-detection is triggered when a user requests the home page or a non-region-specific URL (e.g /verve).
-The web server redirects the browser to /region/index/ which then takes the requested URL and interprets it.
-TODO: include as autoload so Apache redirects not required.
 
 
 How the geo-detection works
@@ -57,25 +56,13 @@ Setup
 - edit settings/region.ini
 - clear ini cache
 
-From eZ Publish 4.1.x:
-Edit your config.php and add those lines of code. This will execute
-and request router after the ezc have been loaded.
+Template operators
+==================
 
-The first parameter of ezxRegion::load will define an array of siteaccesses
-that are excluded from the routing.
+{in_region('my-region')} 
+- Works with the RegionCountryList setting in region.ini, under [Regions].  
+- returns true if the user's country is listed in the specified RegionCountryList e.g RegionCountryList[my-region]
+- otherwise returns false
+- works with 'TESTIP' and 'country' GET variables listed above, for testing purposes  
 
-<?php
-if( php_sapi_name() != 'cli' )
-{
-    function RegionOnLoad( $className )
-    {
-        if ( isset($GLOBALS['eZDBGlobalInstance']) && $GLOBALS['eZDBGlobalInstance'] instanceof eZDBInterface )
-        {
-            spl_autoload_unregister( 'RegionOnLoad' );
-            ezxRegion::load( 'eZSESSID', true );
-            return ezpAutoloader::autoload( $className );
-        }
-    }
-    spl_autoload_register( 'RegionOnLoad' );
-}
 ?>

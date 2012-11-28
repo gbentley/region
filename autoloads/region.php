@@ -14,7 +14,7 @@ class Region
     */
     function operatorList()
     {
-        return array( 'region_languages', 'regions', 'language_uri' );
+        return array( 'region_languages', 'regions', 'language_uri', 'in_region' );
     }
     /*!
      \return true to tell the template engine that the parameter list exists per operator type,
@@ -41,7 +41,10 @@ class Region
                                                                      'default' => false ) ),
                       'regions' => array( 'siteaccessname' => array( 'type' => 'string',
                                                                      'required' => true,
-                                                                     'default' => false ) )
+                                                                     'default' => false ) ),
+					        		'in_region' => array( 'region' => array( 'type' => 'string',
+					        																									 'required' => true,
+					        																									 'default' => false ) ),
                                                                       );
 
     }
@@ -70,6 +73,24 @@ class Region
             case 'regions':
                 $operatorValue = ezxISO3166::getPrimaryLocales( $namedParameters['siteaccessname'] );
             break;
+            case 'in_region':
+	            	$regionini = eZINI::instance( 'region.ini' );
+	            	$regions = $regionini->variableArray('Regions', 'RegionCountryList');
+	            	
+	            	$ip = ( array_key_exists( 'TESTIP', $_GET ) and ezxISO3166::validip( $_GET['TESTIP'] ) ) ? new ezxISO3166( $_GET['TESTIP']) : new ezxISO3166();
+	            	$ccode = ( array_key_exists( 'country', $_GET ) ) ? strtoupper($_GET['country']) : $ip->getCCfromIP();
+	            	eZDebug::writeDebug( $regions, 'Regions' );
+	            	eZDebug::writeDebug( $ccode, 'Country code' );
+	            	
+	            	// CHECK THAT THE REGION EXISTS IN THE REGION GROUP
+	            	if ( in_array( $ccode, $regions[$namedParameters['region']] ) && array_key_exists($namedParameters['region'], $regions) )
+	            		{
+	            			$operatorValue = true;
+	            			break;
+	            		}
+	            	
+	            	$operatorValue = false;
+	          break;
         }
             
             
