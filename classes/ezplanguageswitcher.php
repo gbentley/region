@@ -124,6 +124,9 @@ class ezpLanguageSwitcher implements ezpLanguageSwitcherCapable
         
         $saIni = $this->getSiteAccessIni();
         $siteLanguageList = $saIni->variable( 'RegionalSettings', 'SiteLanguageList' );
+        if( count( $siteLanguageList ) === 0 ) {
+        	$siteLanguageList = array( eZINI::instance()->variable( 'RegionalSettings', 'ContentObjectLocale' ) );
+        }
         foreach ($siteLanguageList as $siteLanguage)
         {
         	$destinationElement = eZURLAliasML::fetchByAction( 'eznode', $nodeId, $siteLanguage, false );
@@ -162,7 +165,13 @@ class ezpLanguageSwitcher implements ezpLanguageSwitcherCapable
         {
             // Translated object found, forwarding to new URL.
 
-            $urlAlias = $destinationElement[0]->getPath( $this->destinationLocale, $siteLanguageList );
+            if( count( $saIni->variable( 'RegionalSettings', 'SiteLanguageList' ) ) === 0 ) {
+	            unset( $GLOBALS['eZContentLanguagePrioritizedLanguages'] );
+	            eZContentLanguage::prioritizedLanguages( array( $this->destinationLocale ) );
+	            $urlAlias = $destinationElement[0]->fetchPathByActionList( 'eznode', array( $nodeId ), $this->destinationLocale );
+            } else {
+            	$urlAlias = $destinationElement[0]->getPath( $this->destinationLocale, $siteLanguageList );
+            }
             $urlAlias .= $this->userParamString;
         }
 
