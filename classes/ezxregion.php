@@ -389,10 +389,11 @@ class ezxRegion
 			&& $GLOBALS['eZCurrentAccess']['name'] == eZINI::instance( 'site.ini' )->variable( 'SiteSettings', 'DefaultAccess' )
 		) {
 			$p = array(
-				'Parameters'     => array( false ),
+				'Parameters'     => array( $uri->uriString() ),
 				'UserParameters' => array()
 			);
-			$url = self::getRegionURL( $p ) . $uri->uriString() . eZSys::queryString();
+
+			$url = self::getRegionURL( $p ) . eZSys::queryString();
 			header( 'Location: ' . $url );
 			eZExecution::cleanExit();
 		}
