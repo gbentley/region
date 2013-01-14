@@ -336,7 +336,7 @@ class ezxRegion
 			elseif ( array_key_exists( 'country', $_GET ) )
 			{
 				$regiondata = ezxRegion::getRegionData( null , $_GET['country'], $lang);
-				eZDebug::writeDebug( $_GET['country'], 'TEST IP ADDRESS' );
+				eZDebug::writeDebug( $_GET['country'], 'TEST COUNTRY' );
 				eZDebug::writeDebug( $regiondata, 'TEST REGIONAL DATA' );
 			}
 			else
