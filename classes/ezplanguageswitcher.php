@@ -136,6 +136,14 @@ class ezpLanguageSwitcher implements ezpLanguageSwitcherCapable
         	}
         }
 
+		if(
+			count( $saIni->variable( 'RegionalSettings', 'ContentObjectLocale' ) ) === 0
+			&& count( $destinationElement ) === 0
+		) {
+			$siteLanguageList = array( eZINI::instance()->variable( 'RegionalSettings', 'ContentObjectLocale' ) );
+			$destinationElement = eZURLAliasML::fetchByAction( 'eznode', $nodeId, true, false );
+		}
+
         if ( empty( $destinationElement ) || ( !isset( $destinationElement[0] ) && !( $destinationElement[0] instanceof eZURLAliasML ) ) )
         {
             // If the return of fetchByAction is empty, it can mean a couple
