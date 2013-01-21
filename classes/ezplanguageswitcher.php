@@ -137,7 +137,7 @@ class ezpLanguageSwitcher implements ezpLanguageSwitcherCapable
         }
 
 		if(
-			count( $saIni->variable( 'RegionalSettings', 'ContentObjectLocale' ) ) === 0
+			count( $saIni->variable( 'RegionalSettings', 'SiteLanguageList' ) ) === 0
 			&& count( $destinationElement ) === 0
 		) {
 			$siteLanguageList = array( eZINI::instance()->variable( 'RegionalSettings', 'ContentObjectLocale' ) );
