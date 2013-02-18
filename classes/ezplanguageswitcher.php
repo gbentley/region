@@ -121,7 +121,7 @@ class ezpLanguageSwitcher implements ezpLanguageSwitcherCapable
         {
             $nodeId = eZURLAliasML::fetchNodeIDByPath( $this->origUrl );
         }
-        
+
         $saIni = $this->getSiteAccessIni();
         $siteLanguageList = $saIni->variable( 'RegionalSettings', 'SiteLanguageList' );
         if( count( $siteLanguageList ) === 0 ) {
@@ -143,8 +143,13 @@ class ezpLanguageSwitcher implements ezpLanguageSwitcherCapable
 			$siteLanguageList   = array( eZINI::instance()->variable( 'RegionalSettings', 'ContentObjectLocale' ) );
 			$destinationElement = eZURLAliasML::fetchByAction( 'eznode', $nodeId, true, false );
 			if( count( $destinationElement ) > 1 ) {
+				$node   = eZContentObjectTreeNode::fetch( $nodeId );
+				$object = $node->attribute( 'object' );
+				$mask   = $object->attribute( 'initial_language_id' );
+/*
 				$lang = eZContentLanguage::fetchByLocale( $siteLanguageList[0] );
 				$mask = (int) $lang->attribute( 'id' );
+*/
 				foreach( $destinationElement as $el ) {
 					if( ( $mask & (int) $el->attribute( 'lang_mask' ) ) > 0 ) {
 						$destinationElement[0] = $el;
