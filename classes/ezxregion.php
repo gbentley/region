@@ -396,6 +396,9 @@ class ezxRegion
 			$url = self::getRegionURL( $p ) . eZSys::queryString();
 			header( 'Location: ' . $url );
 			eZExecution::cleanExit();
+		} else {
+			$currentRegion = eZINI::instance( 'site.ini' )->variable( 'RegionalSettings', 'Locale' ); 
+			setcookie( 'EZREGION', $currentRegion, time()+3600*24*365 , '/' );
 		}
 	}
 }
