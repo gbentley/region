@@ -78,12 +78,11 @@ class ezpLanguageSwitcher implements ezpLanguageSwitcherCapable
     {
         // Grab the first URL element, representing the possible module name
         $urlElements = explode( '/', $url );
-        $moduleName = $urlElements[0];
 
         // Look up for a match in the module list
         $moduleIni = eZINI::instance( 'module.ini' );
         $availableModules = $moduleIni->variable( 'ModuleSettings', 'ModuleList' );
-        return in_array( $moduleName, $availableModules, true );
+        return in_array( $urlElements[0], $availableModules, true ) || in_array( $urlElements[1], $availableModules, true );
     }
 
     /**
