@@ -265,14 +265,27 @@ class ezpLanguageSwitcher implements ezpLanguageSwitcherCapable
             return array();
         }
 
+		$regionIni = eZINI::instance( 'region.ini' );
+		$directURL = in_array(
+			$regionIni->variable( 'Settings', 'DirectURL' ),
+			array( 'yes', 'true', 'enabled' )
+		);
         $ret = array();
         $translationSiteAccesses = $ini->variable( 'RegionalSettings', 'TranslationSA' );
         foreach ( $translationSiteAccesses as $siteAccessName => $translationName )
         {
-            $switchLanguageLink = "/switchlanguage/to/{$siteAccessName}/";
-            if ( $url !== null && ( is_string( $url ) || is_numeric( $url ) ) )
-            {
-                $switchLanguageLink .= $url;
+        	if( $directURL ) {
+				$langSwitch = self::getLangSwitcher();
+				$langSwitch->setOrigUrl( $url );
+        		$langSwitch->setDestinationSiteAccess( $siteAccessName );
+        		$langSwitch->process();
+        		$switchLanguageLink = $langSwitch->destinationUrl();
+        	} else {
+	            $switchLanguageLink = "/switchlanguage/to/{$siteAccessName}/";
+	            if ( $url !== null && ( is_string( $url ) || is_numeric( $url ) ) )
+	            {
+	                $switchLanguageLink .= $url;
+	            }
             }
             $ret[$siteAccessName] = array( 'url' => $switchLanguageLink,
                                            'text' => $translationName
@@ -280,6 +293,19 @@ class ezpLanguageSwitcher implements ezpLanguageSwitcherCapable
         }
         return $ret;
     }
+
+	public static function getLangSwitcher() {
+		$handlerOptions = new ezpExtensionOptions();
+		$handlerOptions->iniFile = 'site.ini';
+		$handlerOptions->iniSection = 'RegionalSettings';
+		$handlerOptions->iniVariable = 'LanguageSwitcherClass';
+		$handlerOptions->handlerParams = array();
+		return eZExtension::getHandlerClass( $handlerOptions );
+	}
+
+	public function setOrigUrl( $url ) {
+		$this->origUrl = $url;
+	}
 }
 
 ?>
