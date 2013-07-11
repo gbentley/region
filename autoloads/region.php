@@ -106,10 +106,7 @@ class Region
                 	}
 				break;
 				case 'canonical_language_url':
-					$return = array(
-						'url'      => null,
-						'language' => null
-					);
+					$return = array();
 
 					$node   = eZContentObjectTreeNode::fetch( $currentNodeId );
 					$object = false;
@@ -117,36 +114,17 @@ class Region
 						$object = $node->attribute( 'object' );
 					}
 
-					if (
-						$object instanceof eZContentObject
-						&& isset( $contentInfo['current_language'] )
-						&& $contentInfo['current_language'] !== $object->attribute( 'initial_language_code' ) )
-					{
-						$siteaccess = eZSiteAccess::saNameByLanguage( $object->attribute( 'initial_language_code' ) );
-						if( $siteaccess !== null ) {
-							$handlerOptions = new ezpExtensionOptions();
-							$handlerOptions->iniFile = 'site.ini';
-							$handlerOptions->iniSection = 'RegionalSettings';
-							$handlerOptions->iniVariable = 'LanguageSwitcherClass';
-							$handlerOptions->handlerParams = array(
-								array(
-									'Parameters' => array( $currentNodeId ),
-									'UserParameters' => array()
-								)
-							);
-							$langSwitch = eZExtension::getHandlerClass( $handlerOptions );
-							$langSwitch->setDestinationSiteAccess( $siteaccess );
-							$langSwitch->process();
-
-							$return['url'] = $langSwitch->destinationUrl();
-							
-							$locale = new eZLocale( $object->attribute( 'initial_language_code' ) );
-							$return['language'] = strtolower( $locale->attribute( 'http_locale_code' ) );
-
-							$operatorValue = $return;
-						}
+					$translatedURLs = ezpLanguageSwitcher::setupTranslationSAList( $currentNodeId );
+					foreach( $translatedURLs as $sa => $translation ) {
+						$ini      = eZSiteAccess::getIni( $sa );
+						$locale   = new eZLocale( $ini->variable( 'RegionalSettings', 'Locale' ) );
+						$return[] = array(
+							'language'   => strtolower( $locale->attribute( 'http_locale_code' ) ),
+							'url'        => $translation['url'],
+							'siteaccess' => $sa
+						);
 					}
-
+					$operatorValue = $return;
 				break;
         }
 
