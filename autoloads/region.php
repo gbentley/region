@@ -114,16 +114,32 @@ class Region
 						$object = $node->attribute( 'object' );
 					}
 
-					$translatedURLs = ezpLanguageSwitcher::setupTranslationSAList( $currentNodeId );
+					$translatedURLs  = ezpLanguageSwitcher::setupTranslationSAList( $currentNodeId );
+					$localeCountries = eZINI::instance( 'region.ini' )->variable( 'Regions', 'LocaleCountryList' );
 					foreach( $translatedURLs as $sa => $translation ) {
-						$ini      = eZSiteAccess::getIni( $sa );
-						$locale   = new eZLocale( $ini->variable( 'RegionalSettings', 'Locale' ) );
-						$return[] = array(
-							'language'   => strtolower( $locale->attribute( 'http_locale_code' ) ),
-							'url'        => $translation['url'],
-							'siteaccess' => $sa
-						);
+						$ini        = eZSiteAccess::getIni( $sa );
+						$localeCode = $ini->variable( 'RegionalSettings', 'Locale' );
+						$locale     = new eZLocale( $localeCode );
+						if( isset( $localeCountries[ $localeCode ] ) ) {
+							$tmp         = explode( '-', strtolower( $locale->attribute( 'http_locale_code' ) ) );
+							$countryCode = $tmp[0];
+							$languages   = explode( ';', strtolower( $localeCountries[ $localeCode ] ) );
+							foreach( $languages as $language ) {
+								$return[] = array(
+									'language'   => $countryCode . '-' . $language,
+									'url'        => $translation['url'],
+									'siteaccess' => $sa
+								);								
+							}
+						} else {
+							$return[] = array(
+								'language'   => strtolower( $locale->attribute( 'http_locale_code' ) ),
+								'url'        => $translation['url'],
+								'siteaccess' => $sa
+							);
+						}
 					}
+
 					$operatorValue = $return;
 				break;
         }
