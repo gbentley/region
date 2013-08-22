@@ -272,6 +272,7 @@ class ezpLanguageSwitcher implements ezpLanguageSwitcherCapable
 		);
         $ret = array();
         $translationSiteAccesses = $ini->variable( 'RegionalSettings', 'TranslationSA' );
+        eZDebug::writeDebug($directURL,'directURL');
         foreach ( $translationSiteAccesses as $siteAccessName => $translationName )
         {
         	if( $directURL ) {
@@ -288,7 +289,8 @@ class ezpLanguageSwitcher implements ezpLanguageSwitcherCapable
 	            }
             }
             $ret[$siteAccessName] = array( 'url' => $switchLanguageLink,
-                                           'text' => $translationName
+                                           'text' => $translationName,
+            																'locale' => eZSiteAccess::getIni( $siteAccessName )->variable( 'RegionalSettings', 'ContentObjectLocale' )
                                          );
         }
         return $ret;
