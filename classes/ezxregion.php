@@ -318,8 +318,8 @@ class ezxRegion
         );
     }
 
-	public static function getRegionURL( $URLPath ) {
-		if ( array_key_exists( 'EZREGION', $_COOKIE ) )
+	public static function getRegionURL( $URLPath, $checkCookie=true ) {
+		if ( array_key_exists( 'EZREGION', $_COOKIE ) && $checkCookie)
 		{
 			eZDebug::writeDebug( $_COOKIE['EZREGION'], 'region cookie');
 			$selection = $_COOKIE['EZREGION'];
