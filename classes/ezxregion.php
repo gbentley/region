@@ -384,6 +384,9 @@ class ezxRegion
 	public static function requestInput( $uri ) {
 		$mathType = (int) $GLOBALS['eZCurrentAccess']['type'];
 
+        //Check region only if this cookie is not set
+        self::checkRegion();
+        
 		if(
 			count( $GLOBALS['eZCurrentAccess']['uri_part'] ) == 0 
 			&& $GLOBALS['eZCurrentAccess']['name'] == eZINI::instance( 'site.ini' )->variable( 'SiteSettings', 'DefaultAccess' )
@@ -401,4 +404,46 @@ class ezxRegion
 			setcookie( 'EZREGION', $currentRegion, time()+3600*24*365 , '/' );
 		}
 	}
+
+    public function checkRegion() {
+
+        $ignoreCheck = false;
+        $tempUrl = $GLOBALS['eZURIRequestInstance']->OriginalURI;
+        $nodeId = eZURLAliasML::fetchNodeIDByPath( $tempUrl );
+
+        //Check the region only for site pages
+        if(!$nodeId) {
+            $ignoreCheck = true;
+        }
+
+        if ( !array_key_exists( 'REGIONCHECKED', $_COOKIE ) && !$ignoreCheck){
+            $siteAccessRequested = $GLOBALS['eZCurrentAccess']['name'];
+            $systemIdentifiedRegion = self::getRegionData(ezxISO3166::getRealIpAddr());
+            $preferredRegion = $systemIdentifiedRegion['preferred_region'];
+            $systemIdentifiedSiteAccess = $systemIdentifiedRegion['preferred_regions'][$preferredRegion][0];
+
+            $languageSAList = eZINI::instance()->variable( 'RegionalSettings', 'LanguageSA' );
+            $usSA = $languageSAList['eng-US'];
+
+            if($systemIdentifiedSiteAccess != $siteAccessRequested) {
+                eZSession::set( 'REGIONWARNING', 'TRUE' );
+
+
+
+                //Get system identified SA path for URL
+                $ezURIInstance = $GLOBALS['eZURIRequestInstance'];
+                $originalUri = $ezURIInstance->OriginalURI;
+                $listOfTranslationsForURL = ezpLanguageSwitcher::setupTranslationSAList($originalUri);
+
+
+                $systemIdentifiedURL = $listOfTranslationsForURL[$systemIdentifiedSiteAccess]['url'];
+                $requestedURL = $listOfTranslationsForURL[$siteAccessRequested]['url'];
+                $usURL = $listOfTranslationsForURL[$usSA]['url'];
+
+                eZSession::set('SYSTEMIDENTIFIEDURL', $systemIdentifiedURL);
+                eZSession::set('USURL', $usURL);
+            }
+            //setcookie('REGIONCHECKED', 'TRUE', time()+3600*24*365 , '/' );
+        }
+    }
 }
