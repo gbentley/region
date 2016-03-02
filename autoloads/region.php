@@ -14,7 +14,7 @@ class Region
     */
     function operatorList()
     {
-        return array( 'region_languages', 'regions', 'language_uri', 'in_region', 'canonical_url', 'canonical_language_url' );
+        return array( 'region_languages', 'regions', 'language_uri', 'in_region', 'canonical_url', 'canonical_language_url', 'detected_region' );
     }
     /*!
      \return true to tell the template engine that the parameter list exists per operator type,
@@ -47,6 +47,7 @@ class Region
                                                                'default' => false ) ),
                       'canonical_url' => array(),
                       'canonical_language_url' => array(),
+		      'detected_region' => array(),
 		);
 
     }
@@ -142,6 +143,19 @@ class Region
 
 					$operatorValue = $return;
 				break;
+				case 'detected_region':
+			                $operatorValue = 'mb_us';
+			                $systemIdentifiedRegion = ezxRegion::getRegionData(ezxISO3166::getRealIpAddr());
+			                $preferredRegion = $systemIdentifiedRegion['preferred_region'];
+
+			                if(array_key_exists('preferred_regions',$systemIdentifiedRegion)) {
+			                    $preferredRegion = empty($preferredRegion) ? 'eng-US' : $preferredRegion;
+			                    $systemIdentifiedSiteAccess = $systemIdentifiedRegion['preferred_regions'][$preferredRegion][0];
+
+			                    $countryNames = eZINI::instance( 'site.ini' )->variable( 'RegionalSettings', 'TranslationSA' );
+			                    $operatorValue = array_key_exists($systemIdentifiedSiteAccess, $countryNames) ? $countryNames[$systemIdentifiedSiteAccess] : 'United States';
+			                }
+		                break;
         }
 
 

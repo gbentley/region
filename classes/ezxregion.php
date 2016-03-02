@@ -405,7 +405,7 @@ class ezxRegion
 		}
 	}
 
-    public function checkRegion() {
+    public static function checkRegion() {
 
         $ignoreCheck = false;
         $tempUrl = $GLOBALS['eZURIRequestInstance']->OriginalURI;
@@ -422,26 +422,17 @@ class ezxRegion
             $preferredRegion = $systemIdentifiedRegion['preferred_region'];
             $systemIdentifiedSiteAccess = $systemIdentifiedRegion['preferred_regions'][$preferredRegion][0];
 
-            $languageSAList = eZINI::instance()->variable( 'RegionalSettings', 'LanguageSA' );
-            $usSA = $languageSAList['eng-US'];
-
             if($systemIdentifiedSiteAccess != $siteAccessRequested) {
                 eZSession::set( 'REGIONWARNING', 'TRUE' );
-
-
 
                 //Get system identified SA path for URL
                 $ezURIInstance = $GLOBALS['eZURIRequestInstance'];
                 $originalUri = $ezURIInstance->OriginalURI;
                 $listOfTranslationsForURL = ezpLanguageSwitcher::setupTranslationSAList($originalUri);
 
-
                 $systemIdentifiedURL = $listOfTranslationsForURL[$systemIdentifiedSiteAccess]['url'];
-                $requestedURL = $listOfTranslationsForURL[$siteAccessRequested]['url'];
-                $usURL = $listOfTranslationsForURL[$usSA]['url'];
 
                 eZSession::set('SYSTEMIDENTIFIEDURL', $systemIdentifiedURL);
-                eZSession::set('USURL', $usURL);
             }
             //setcookie('REGIONCHECKED', 'TRUE', time()+3600*24*365 , '/' );
         }
