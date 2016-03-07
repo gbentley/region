@@ -434,6 +434,9 @@ class ezxRegion
 
                 eZSession::set('SYSTEMIDENTIFIEDURL', $systemIdentifiedURL);
             }
+	    else {
+		eZSession::unsetkey('REGIONWARNING');
+	    }
             //setcookie('REGIONCHECKED', 'TRUE', time()+3600*24*365 , '/' );
         }
     }
