@@ -1,15 +1,18 @@
 REGION EXTENSION
-================
-
-Region extension
 ===============================================================================
+
 Original Author: Bj?rn Dieding, http://www.xrow.com
-Additions by: Geoff Bentley, Serhey Dolgushev
+Additions by: Geoff Bentley, Serhey Dolgushev, Raghu Dontikurthi
 
 The region extension redirects a user to a siteaccess based on his ip address.
 This can be done in the background (the ip address is checked in the database)
 automatically, or the user can choose a country siteaccess in a specific
 pagelayout.
+
+Features
+--------
+ * Multi-country regions
+ * Region alert (when the region detected differs from the current region)
 
 This extension includes GeoLite data created by MaxMind, available from
 http://maxmind.com/
@@ -64,5 +67,13 @@ Template operators
 - returns true if the user's country is listed in the specified RegionCountryList e.g RegionCountryList[my-region]
 - otherwise returns false
 - works with 'TESTIP' and 'country' GET variables listed above, for testing purposes  
+
+Region alert
+============
+This feature pops up a jQueryUI dialog when the region a user is visiting does not match their geo-detected region.  They are offered the choice of continuing to the selected region or going to their geo-detected region.
+
+To install:
+1. Uncomment jquery and jqueryUI in settings/design.ini.append.php or ensure these are available on the pages you want to apply this to.
+2. Add {include uri="design:region_alert.tpl"} to your footer tpl or on the pages you want to apply it to.
 
 ?>
