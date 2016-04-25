@@ -75,5 +75,9 @@ This feature pops up a jQueryUI dialog when the region a user is visiting does n
 To install:
 1. Uncomment jquery and jqueryUI in settings/design.ini.append.php or ensure these are available on the pages you want to apply this to.
 2. Add {include uri="design:region_alert.tpl"} to your footer tpl or on the pages you want to apply it to.
+3. Add the following to settings/override/site.ini.append.php:
+
+ [RoleSettings]
+ PolicyOmitList[]=region/check
 
 ?>
