@@ -7,4 +7,6 @@ DesignExtensions[]=region
 #FrontendJavaScriptList[]=ezjsc::jquery
 #FrontendJavaScriptList[]=ezjsc::jqueryUI
 
+FrontendJavaScriptList[]=region.js
+
 /* ?>
