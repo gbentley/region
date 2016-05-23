@@ -56,9 +56,9 @@ class eZi18nOperator
                                             'arguments' => array( 'type' => 'hash',
                                                                   'required' => false,
                                                                   'default' => false ),
-                                            'locale' => array( 'type' => 'string',
+                                            'locale' => array( 'type' => 'array',
                                                                'required' => false,
-                                                               'default' => '' ) ),
+                                                               'default' => false ) ),
                       $this->ExtensionName => array( 'extension' => array( 'type' => 'string',
                                                                            'required' => true,
                                                                            'default' => false ),
@@ -101,31 +101,17 @@ class eZi18nOperator
                 return false;
             }
         }
-	$value = eZTemplateNodeTool::elementConstantValue( $parameters[0] );
+        $value = eZTemplateNodeTool::elementConstantValue( $parameters[0] );
 
         $numParameters = count ( $parameters );
         $context = ( $numParameters > 1 ) ? eZTemplateNodeTool::elementConstantValue( $parameters[1] ) : null;
         $comment = ( $numParameters > 2 ) ? eZTemplateNodeTool::elementConstantValue( $parameters[2] ) : null;
         $locale = ( $numParameters > 4 ) ? eZTemplateNodeTool::elementConstantValue( $parameters[4] ) : null;
 
-if($numParameters > 4) {
-	ezDebug::writeDebug($locale, "Debug locate test");
-	debug_print_backtrace();
-	exit();
-}
-
-        if ( $numParameters < 5 )
+        if ( $numParameters < 4 )
         {
             return array ( eZTemplateNodeTool::createStringElement( ezpI18n::tr( $context, $value, $comment, null ) ) );
         }
-ezDebug::writeDebug($numParameters,'Params count');
-
-ezDebug::writeDebug($context,'Parameter context');
-ezDebug::writeDebug($parameters[1],'Value Parameter context');
-ezDebug::writeDebug($parameters[4],'Value Parameter locale');
-ezDebug::writeDebug($comment,'Parameter comment');
-ezDebug::writeDebug($locale,'Parameter locale');
-
 
         $values = array();
 
@@ -167,22 +153,19 @@ ezDebug::writeDebug($locale,'Parameter locale');
 
     function modify( $tpl, $operatorName, $operatorParameters, $rootNamespace, $currentNamespace, &$value, &$namedParameters, $placement )
     {
-echo "<br/>OPerator name - ". $operatorName;
         switch ( $operatorName )
         {
             case $this->Name:
             case $this->DynamicName:
-	    {
+            {
                 $context = $namedParameters['context'];
                 $comment = $namedParameters['comment'];
                 $arguments = $namedParameters['arguments'];
                 $locale = $namedParameters['locale'];
-                eZDebug::writeDebug($locale,'RD operator locale');
-		$value = ezpI18n::tr( $context, $value, $comment, $arguments, $locale );
+                $value = ezpI18n::tr( $context, $value, $comment, $arguments, $locale );
             } break;
             case $this->ExtensionName:
             {
-		eZDebug::writeDebug('locale','Test Switch operator locale');
                 $extension = $namedParameters['extension'];
                 $context = $namedParameters['context'];
                 $comment = $namedParameters['comment'];
