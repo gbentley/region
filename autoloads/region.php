@@ -14,7 +14,7 @@ class Region
     */
     function operatorList()
     {
-        return array( 'region_languages', 'regions', 'language_uri', 'in_region', 'canonical_url', 'canonical_language_url', 'detected_region' );
+        return array( 'region_languages', 'regions', 'language_uri', 'in_region', 'canonical_url', 'canonical_language_url', 'detected_region', 'detected_locale' );
     }
     /*!
      \return true to tell the template engine that the parameter list exists per operator type,
@@ -47,7 +47,8 @@ class Region
                                                                'default' => false ) ),
                       'canonical_url' => array(),
                       'canonical_language_url' => array(),
-		      'detected_region' => array(),
+                      'detected_region' => array(),
+                      'detected_locale' => array()
 		);
 
     }
@@ -144,7 +145,7 @@ class Region
 					$operatorValue = $return;
 				break;
 				case 'detected_region':
-			                $operatorValue = 'mb_us';
+			                $operatorValue = eZINI::instance( 'site.ini' )->variable('SiteSettings','DefaultAccess');
 			                $systemIdentifiedRegion = ezxRegion::getRegionData(ezxISO3166::getRealIpAddr());
 			                $preferredRegion = $systemIdentifiedRegion['preferred_region'];
 
@@ -155,7 +156,18 @@ class Region
 			                    $countryNames = eZINI::instance( 'site.ini' )->variable( 'RegionalSettings', 'TranslationSA' );
 			                    $operatorValue = array_key_exists($systemIdentifiedSiteAccess, $countryNames) ? $countryNames[$systemIdentifiedSiteAccess] : 'United States';
 			                }
-		                break;
+                            break;
+                 case 'detected_locale':
+                            $operatorValue = eZINI::instance( 'site.ini' )->variable('SiteSettings','DefaultAccess');
+                            $systemIdentifiedRegion = ezxRegion::getRegionData(ezxISO3166::getRealIpAddr());
+                            $preferredRegion = $systemIdentifiedRegion['preferred_region'];
+                            if(array_key_exists('preferred_regions',$systemIdentifiedRegion)) {
+                                $preferredRegion = empty($preferredRegion) ? 'eng-US' : $preferredRegion;
+
+                                $operatorValue = $preferredRegion;
+                            }
+                 break;
+
         }
 
 
