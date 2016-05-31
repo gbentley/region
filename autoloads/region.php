@@ -122,7 +122,7 @@ class Region
 						$ini        = eZSiteAccess::getIni( $sa );
 						$localeCode = $ini->variable( 'RegionalSettings', 'Locale' );
 						$locale     = new eZLocale( $localeCode );
-						if( isset( $localeCountries[ $localeCode ] ) ) {
+						if( isset( $localeCountries[ $localeCode ] ) && $localeCode != 'eng-US' ) {
 							$tmp         = explode( '-', strtolower( $locale->attribute( 'http_locale_code' ) ) );
 							$countryCode = $tmp[0];
 							$languages   = explode( ';', strtolower( $localeCountries[ $localeCode ] ) );
