@@ -11,6 +11,7 @@ if(!array_key_exists( 'REGIONCHECKED', $_COOKIE )) {
             'redirectto' => $redirectURL            
         );
         $resultJson = json_encode($result);
+	header('Content-Type: application/json');
         print_r($resultJson);
     }
     setcookie('REGIONCHECKED', 'TRUE', time()+3600*24*365 , '/' );
