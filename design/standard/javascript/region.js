@@ -9,7 +9,7 @@ $(document).ready(function() {
         if(result != '') {
             //console.log("Site needs redirection");
 
-            var response = jQuery.parseJSON(result);
+            var response = result;
             if (typeof response == 'object') {
                 //console.log("Redirect URL = " + response.redirectto);                
                 $(document).on('click touchstart','.ui-dialog-buttonset button:first',function(e){
