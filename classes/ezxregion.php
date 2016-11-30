@@ -416,14 +416,17 @@ class ezxRegion
             $ignoreCheck = true;
         }
 
-        if ( !array_key_exists( 'REGIONCHECKED', $_COOKIE ) && !$ignoreCheck){
+        if (!eZSession::issetkey('REGIONCHECKED') && !$ignoreCheck) {
+
+            eZSession::set('REGIONCHECKED',1);
+
             $siteAccessRequested = $GLOBALS['eZCurrentAccess']['name'];
             $systemIdentifiedRegion = self::getRegionData(ezxISO3166::getRealIpAddr());
             $preferredRegion = $systemIdentifiedRegion['preferred_region'];
             $systemIdentifiedSiteAccess = $systemIdentifiedRegion['preferred_regions'][$preferredRegion][0];
 
-            if($systemIdentifiedSiteAccess != $siteAccessRequested) {
-                eZSession::set( 'REGIONWARNING', 'TRUE' );
+            if ($systemIdentifiedSiteAccess != $siteAccessRequested) {
+                eZSession::set('REGIONWARNING', 'TRUE');
 
                 //Get system identified SA path for URL
                 $ezURIInstance = $GLOBALS['eZURIRequestInstance'];
@@ -433,11 +436,14 @@ class ezxRegion
                 $systemIdentifiedURL = $listOfTranslationsForURL[$systemIdentifiedSiteAccess]['url'];
 
                 eZSession::set('SYSTEMIDENTIFIEDURL', $systemIdentifiedURL);
+                ezSession::set('REDIRECT_SITEACCESS', $systemIdentifiedSiteAccess);
+
+            } else {
+                eZSession::unsetkey('REGIONWARNING');
+                ezSession::unsetkey('REDIRECT_SITEACCESS');
             }
-	    else {
-		eZSession::unsetkey('REGIONWARNING');
-	    }
             //setcookie('REGIONCHECKED', 'TRUE', time()+3600*24*365 , '/' );
         }
+
     }
 }

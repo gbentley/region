@@ -2,18 +2,29 @@
 
 $module = $Params['Module'];
 
-if(!array_key_exists( 'REGIONCHECKED', $_COOKIE )) {
-    $result = array();
+$result = array(
+    "regionChecked" => 0,
+    "redirectTo" => null
+);
 
-    //Check for session variable
-    if(eZSession::issetkey('REGIONWARNING')) {
+//Check for session variable
+if(eZSession:: issetkey("REGIONCHECKED")) {
+
+    $result["regionChecked"] = 1;
+
+    if (eZSession::issetkey("REGIONWARNING")) {
+
         $redirectURL = eZSession::get('SYSTEMIDENTIFIEDURL');
-        $usURL = eZSession::get('USURL');
-        $result = array(
-            'redirectto' => $redirectURL
-        );
+        $targetSiteaccess = eZSession::get('REDIRECT_SITEACCESS');
+
+        $currentSiteaccess = $GLOBALS['eZCurrentAccess']['name'];
+
+        if ($targetSiteaccess != $currentSiteaccess) {
+            $result['redirectTo'] = $redirectURL;
+            $result['currentSiteaccess'] = $currentSiteaccess;
+            $result['targetSiteaccess'] = $targetSiteaccess;
+        }
     }
-    setcookie('REGIONCHECKED', 'TRUE', time()+3600*24*365 , '/' );
 }
 
 header('Content-Type: application/json');
