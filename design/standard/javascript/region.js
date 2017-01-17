@@ -1,25 +1,23 @@
 // Query current region via AJAX
 $(document).ready(function() {
 
-
-    if (isRegionCheckPending()) {
+    if (!hasRegionWarningBeenShown()) {
         checkRegion();
     }
 
 
-    function isRegionCheckPending() {
+    function hasRegionWarningBeenShown() {
+        var regionWarningShown = localStorage.getItem("regionWarningShown");
 
-        var regionChecked = localStorage.getItem("regionchecked");
-
-        if (regionChecked == null || regionChecked == 0) {
-            return true;
-        } else {
+        if (regionWarningShown == null || regionWarningShown == false) {
             return false;
+        } else {
+            return true;
         }
     }
 
-    function setRegionCheckedFlag(regionChecked) {
-        localStorage.setItem('regionchecked', regionChecked);
+    function setRegionWarningShownFlag() {
+        localStorage.setItem('regionWarningShown', true);
     }
 
     function checkRegion() {
@@ -39,11 +37,14 @@ $(document).ready(function() {
                     var response = result;
                     if (typeof response == 'object') {
 
-                        var isRegionChecked = response.regionChecked; // either a 1 or 0 comes back from the back end. A zero means no region check was performed (try again later), a 1 means we have done one at the back end.
                         var redirectTo = response.redirectTo;
+                        if (redirectTo != null) {
 
-                        setRegionCheckedFlag(isRegionChecked);
-                        if (isRegionChecked && redirectTo != null) {
+                            // replace text copy in dialog with content from target (detected) language
+
+                            setRegionWarningShownFlag(); // region warning has been shown, do not show again.
+
+                            $("#select-your-region-prompt").text(response.selectYourRegionPrompt);
 
                             $(document).on('click touchstart', '.ui-dialog-buttonset button:first', function (e) {
                                 e.preventDefault();
@@ -60,7 +61,7 @@ $(document).ready(function() {
                                 height: 340,
                                 width: 400,
                                 modal: true,
-                                buttons: [{text: geo_go}, {text: geo_continue}]
+                                buttons: [{text: response.goToDetectedRegionPrompt}, {text: response.continueToRegionPrompt}]
                             });
                         }
                     }

@@ -416,14 +416,13 @@ class ezxRegion
             $ignoreCheck = true;
         }
 
-        if (!eZSession::issetkey('REGIONCHECKED') && !$ignoreCheck) {
-
-            eZSession::set('REGIONCHECKED',1);
+        if (!$ignoreCheck) {
 
             $siteAccessRequested = $GLOBALS['eZCurrentAccess']['name'];
             $systemIdentifiedRegion = self::getRegionData(ezxISO3166::getRealIpAddr());
             $preferredRegion = $systemIdentifiedRegion['preferred_region'];
             $systemIdentifiedSiteAccess = $systemIdentifiedRegion['preferred_regions'][$preferredRegion][0];
+
 
             if ($systemIdentifiedSiteAccess != $siteAccessRequested) {
                 eZSession::set('REGIONWARNING', 'TRUE');
@@ -437,12 +436,13 @@ class ezxRegion
 
                 eZSession::set('SYSTEMIDENTIFIEDURL', $systemIdentifiedURL);
                 ezSession::set('REDIRECT_SITEACCESS', $systemIdentifiedSiteAccess);
+                eZSession::set('PREFERRED_REGION', $preferredRegion);
 
             } else {
                 eZSession::unsetkey('REGIONWARNING');
                 ezSession::unsetkey('REDIRECT_SITEACCESS');
+                ezSession::unsetkey('PREFERRED_REGION');
             }
-            //setcookie('REGIONCHECKED', 'TRUE', time()+3600*24*365 , '/' );
         }
 
     }
