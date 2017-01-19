@@ -1,15 +1,19 @@
 // Query current region via AJAX
 $(document).ready(function() {
 
+    $(".languages-nav-holder a").click(function() {
+        setRegionWarningShownFlag();
+    });
+
     if (!hasRegionWarningBeenShown()) {
         checkRegion();
     }
 
 
     function hasRegionWarningBeenShown() {
-        var regionWarningShown = localStorage.getItem("regionWarningShown");
+        var regionWarningShown = sessionStorage.getItem("regionWarningShown");
 
-        if (regionWarningShown == null || regionWarningShown == false) {
+        if (regionWarningShown == null || regionWarningShown == 'false') {
             return false;
         } else {
             return true;
@@ -17,7 +21,7 @@ $(document).ready(function() {
     }
 
     function setRegionWarningShownFlag() {
-        localStorage.setItem('regionWarningShown', true);
+        sessionStorage.setItem('regionWarningShown', 'true');
     }
 
     function checkRegion() {
