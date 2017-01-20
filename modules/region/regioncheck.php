@@ -3,7 +3,8 @@
 $module = $Params['Module'];
 
 $result = array(
-    "redirectTo" => null
+    "redirectTo" => null,
+    "version" => 1
 );
 
 ezxRegion::checkRegion();
