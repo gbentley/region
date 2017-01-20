@@ -408,13 +408,13 @@ class ezxRegion
     public static function checkRegion() {
 
         $ignoreCheck = false;
-        $tempUrl = $GLOBALS['eZURIRequestInstance']->OriginalURI;
-        $nodeId = eZURLAliasML::fetchNodeIDByPath( $tempUrl );
-
-        //Check the region only for site pages
-        if(!$nodeId) {
-            $ignoreCheck = true;
-        }
+//        $tempUrl = $GLOBALS['eZURIRequestInstance']->OriginalURI;
+//        $nodeId = eZURLAliasML::fetchNodeIDByPath( $tempUrl );
+//
+//        //Check the region only for site pages
+//        if(!$nodeId) {
+//            $ignoreCheck = true;
+//        }
 
         if (!$ignoreCheck) {
 
