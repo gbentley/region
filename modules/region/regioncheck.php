@@ -7,15 +7,23 @@ $result = array(
     "version" => 1
 );
 
-ezxRegion::checkRegion();
+ezxRegion::checkRegion(true);
 
 //Check for 'region mismatch' session variable
 if (eZSession::issetkey("REGIONWARNING")) {
 
-    $redirectURL = eZSession::get('SYSTEMIDENTIFIEDURL');
-    $targetSiteaccess = eZSession::get('REDIRECT_SITEACCESS');
+    $href = $_GET['href'];
+    if (!$href) {
+        return;
+    }
 
+//    $redirectURL = eZSession::get('SYSTEMIDENTIFIEDURL');
+    $targetSiteaccess = eZSession::get('REDIRECT_SITEACCESS');
     $currentSiteaccess = $GLOBALS['eZCurrentAccess']['name'];
+
+    $href .= '/';
+    $redirectURL = str_ireplace('/' . $currentSiteaccess . '/', '/'. $targetSiteaccess .  '/', $href);
+    $redirectURL = chop($redirectURL, '/');
 
     if ($targetSiteaccess != $currentSiteaccess) {
         $result['redirectTo'] = $redirectURL;

@@ -29,10 +29,11 @@ $(document).ready(function() {
         console.log("Initiating /region/check");
 
         $.ajax({
-            url: "/region/check",
+            url: regionCheckUrl,
             cache: false,
-            method: 'POST',
-            dataType: 'json'
+            method: 'get',
+            dataType: 'json',
+            data: { href: window.location.href }
         })
             .done( function(result) {
                 console.log("/region/check AJAX returned. Result: " + JSON.stringify(result));
