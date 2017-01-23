@@ -387,9 +387,11 @@ class ezxRegion
         //Check region only if this cookie is not set
         self::checkRegion();
 
+        $ini = eZINI::instance( 'site.ini' );
+
 		if(
 			count( $GLOBALS['eZCurrentAccess']['uri_part'] ) == 0 
-			&& $GLOBALS['eZCurrentAccess']['name'] == eZINI::instance( 'site.ini' )->variable( 'SiteSettings', 'DefaultAccess' )
+			&& $GLOBALS['eZCurrentAccess']['name'] == $ini->variable( 'SiteSettings', 'DefaultAccess' )
 		) {
 			$p = array(
 				'Parameters'     => array( $uri->uriString() ),

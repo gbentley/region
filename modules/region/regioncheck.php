@@ -17,13 +17,15 @@ if (eZSession::issetkey("REGIONWARNING")) {
         return;
     }
 
-//    $redirectURL = eZSession::get('SYSTEMIDENTIFIEDURL');
     $targetSiteaccess = eZSession::get('REDIRECT_SITEACCESS');
     $currentSiteaccess = $GLOBALS['eZCurrentAccess']['name'];
 
-    $href .= '/';
-    $redirectURL = str_ireplace('/' . $currentSiteaccess . '/', '/'. $targetSiteaccess .  '/', $href);
-    $redirectURL = chop($redirectURL, '/');
+    $urlPath = preg_replace("/http(s?):\/\/[^\/]*/", "", $href); // remove the http:// and port
+    $urlPathFragments = array_filter(explode('/', $urlPath));
+    $urlPathFragments = array_slice($urlPathFragments, 1); // remove the siteaccess name
+    $urlPath = implode('/', $urlPathFragments); // recombine to form a path without server & siteaccess
+
+    $redirectURL = ezxRegion::getRegionURL('/', false) . $urlPath;
 
     if ($targetSiteaccess != $currentSiteaccess) {
         $result['redirectTo'] = $redirectURL;
