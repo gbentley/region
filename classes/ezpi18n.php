@@ -83,11 +83,11 @@ class ezpI18n
      * @param array|null $arguments
      * @return string
      */
-    public static function tr( $context, $source, $comment = null, $arguments = null, $locale = null )
+    public static function tr( $context, $source, $comment = null, $arguments = null, $locale = null, $useCache = true )
     {
         if ( self::isEnabled() )
         {
-            return self::translateText( $context, $source, $comment, $arguments, $locale = null );
+            return self::translateText( $context, $source, $comment, $arguments, $locale, $useCache);
         }
         return self::insertArguments( $source, $arguments );
     }
@@ -106,7 +106,7 @@ class ezpI18n
      * @param array|null $arguments
      * @return string
      */
-    protected static function translateText( $context, $source, $comment = null, $arguments = null, $locale = null )
+    protected static function translateText( $context, $source, $comment = null, $arguments = null, $locale = null, $useCache = null )
     {
         $localeCode = ($locale !== null) ? eZLocale::instance($locale)->localeFullCode() : eZLocale::instance()->localeFullCode();
         if ( $localeCode == 'eng-GB' )
@@ -116,7 +116,9 @@ class ezpI18n
         }
 
         $ini = eZINI::instance();
-        $useCache = $ini->variable( 'RegionalSettings', 'TranslationCache' ) != 'disabled';
+        if ($useCache === null) {
+            $useCache = $ini->variable( 'RegionalSettings', 'TranslationCache' ) != 'disabled';
+        }
         eZTSTranslator::initialize( $context, $localeCode, 'translation.ts', $useCache );
 
         // Bork translation: Makes it easy to see what is not translated.

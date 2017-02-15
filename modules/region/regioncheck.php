@@ -47,7 +47,7 @@ if (eZSession::issetkey("REGIONWARNING")) {
 
 function regionCheckI18NLookup($i18NKey, $arguments, $locale) {
 
-    $value = ezpI18n::tr( 'region', $i18NKey, false, $arguments, $locale );
+    $value = ezpI18n::tr( 'region', $i18NKey, false, $arguments, $locale, false );
     return $value;
 
 }
