@@ -318,8 +318,8 @@ class ezxRegion
         );
     }
 
-	public static function getRegionURL( $URLPath ) {
-		if ( array_key_exists( 'EZREGION', $_COOKIE ) )
+	public static function getRegionURL( $URLPath, $checkCookie=true ) {
+		if ( array_key_exists( 'EZREGION', $_COOKIE ) && $checkCookie)
 		{
 			eZDebug::writeDebug( $_COOKIE['EZREGION'], 'region cookie');
 			$selection = $_COOKIE['EZREGION'];
@@ -336,7 +336,7 @@ class ezxRegion
 			elseif ( array_key_exists( 'country', $_GET ) )
 			{
 				$regiondata = ezxRegion::getRegionData( null , $_GET['country'], $lang);
-				eZDebug::writeDebug( $_GET['country'], 'TEST IP ADDRESS' );
+				eZDebug::writeDebug( $_GET['country'], 'TEST COUNTRY' );
 				eZDebug::writeDebug( $regiondata, 'TEST REGIONAL DATA' );
 			}
 			else
@@ -384,9 +384,14 @@ class ezxRegion
 	public static function requestInput( $uri ) {
 		$mathType = (int) $GLOBALS['eZCurrentAccess']['type'];
 
+        //Check region only if this cookie is not set
+        self::checkRegion();
+
+        $ini = eZINI::instance( 'site.ini' );
+
 		if(
 			count( $GLOBALS['eZCurrentAccess']['uri_part'] ) == 0 
-			&& $GLOBALS['eZCurrentAccess']['name'] == eZINI::instance( 'site.ini' )->variable( 'SiteSettings', 'DefaultAccess' )
+			&& $GLOBALS['eZCurrentAccess']['name'] == $ini->variable( 'SiteSettings', 'DefaultAccess' )
 		) {
 			$p = array(
 				'Parameters'     => array( $uri->uriString() ),
@@ -396,6 +401,53 @@ class ezxRegion
 			$url = self::getRegionURL( $p ) . eZSys::queryString();
 			header( 'Location: ' . $url );
 			eZExecution::cleanExit();
+		} else {
+			$currentRegion = eZINI::instance( 'site.ini' )->variable( 'RegionalSettings', 'Locale' ); 
+			setcookie( 'EZREGION', $currentRegion, time()+3600*24*365 , '/' );
 		}
 	}
+
+    public static function checkRegion($forceCheck = false) {
+
+        $ignoreCheck = false;
+        if (!$forceCheck) {
+            $tempUrl = $GLOBALS['eZURIRequestInstance']->OriginalURI;
+            $nodeId = eZURLAliasML::fetchNodeIDByPath( $tempUrl );
+
+            //Check the region only for site pages
+            if(!$nodeId) {
+                $ignoreCheck = true;
+            }
+        }
+
+        if (!$ignoreCheck) {
+
+            $siteAccessRequested = $GLOBALS['eZCurrentAccess']['name'];
+            $systemIdentifiedRegion = self::getRegionData(ezxISO3166::getRealIpAddr());
+            $preferredRegion = $systemIdentifiedRegion['preferred_region'];
+            $systemIdentifiedSiteAccess = $systemIdentifiedRegion['preferred_regions'][$preferredRegion][0];
+
+
+            if ($systemIdentifiedSiteAccess != $siteAccessRequested) {
+                eZSession::set('REGIONWARNING', 'TRUE');
+
+                //Get system identified SA path for URL
+                $ezURIInstance = $GLOBALS['eZURIRequestInstance'];
+                $originalUri = $ezURIInstance->OriginalURI;
+                $listOfTranslationsForURL = ezpLanguageSwitcher::setupTranslationSAList($originalUri);
+
+                $systemIdentifiedURL = $listOfTranslationsForURL[$systemIdentifiedSiteAccess]['url'];
+
+                eZSession::set('SYSTEMIDENTIFIEDURL', $systemIdentifiedURL);
+                ezSession::set('REDIRECT_SITEACCESS', $systemIdentifiedSiteAccess);
+                eZSession::set('PREFERRED_REGION', $preferredRegion);
+
+            } else {
+                eZSession::unsetkey('REGIONWARNING');
+                ezSession::unsetkey('REDIRECT_SITEACCESS');
+                ezSession::unsetkey('PREFERRED_REGION');
+            }
+        }
+
+    }
 }
