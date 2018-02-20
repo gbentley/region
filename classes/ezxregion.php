@@ -3,176 +3,6 @@
 class ezxRegion
 {
 
-    /**
-     * Returns Region information for the current user/ip...
-     *
-     * @return array Returns an array with keys
-     */
-    static function load( $SessionName, $redirectRoot = false, $url_excludes = array() )
-    {
-        if ( eZSys::isShellExecution() )
-        {
-            return;
-        }
-        if ( self::isBot() )
-        {
-            return;
-        }
-        $urlCfg = new ezcUrlConfiguration();
-        $urlCfg->script = 'index.php';
-        $url = new ezcUrl( ezcUrlTools::getCurrentUrl(), $urlCfg );
-        eZDebug::writeDebug($url,'url object');
-        //exit();
-        $params = $url->getParams();
-
-        eZDebug::writeDebug($params, 'params');
-
-        $url_excludes = array_merge( $url_excludes, eZINI::instance( 'region.ini' )->variable( 'Settings', 'URLExcludes' ) );
-        # Checking for excluded URLs
-        $current_url = implode( '/', $params );
-        if ( count( $url_excludes ) > 0 )
-        {
-            foreach ( $url_excludes as $exclude )
-            {
-                if ( preg_match( '#^([^/]*/){0,1}' . $exclude . '#', $current_url ) )
-                {
-                    return;
-                }
-            }
-        }
-
-        if ( ! is_array( $SessionName ) && $SessionName == '' )
-        {
-            $SessionName = 'eZSESSID';
-        }
-        $foundSessionName = false;
-        if ( is_array( $SessionName ) )
-        {
-        	eZDebug::writeDebug('isArray','Session Name');
-            foreach ( $SessionName as $name )
-            {
-                foreach ( $_COOKIE as $cookieName => $cookieValue )
-                {
-                    if ( strpos( $cookieName, $SessionName ) !== false )
-                    {
-                        $foundSessionName = true;
-                    }
-                }
-
-                if ( $foundSessionName )
-                {
-                    if ( $redirectRoot and array_key_exists( 'EZREGION', $_COOKIE ) and
-                         is_array( $params ) and count( $params ) == 0 and
-                         file_exists( 'settings/siteaccess/' . $_COOKIE['EZREGION'] ) )
-                    {
-                        $redirectWithCookie = true;
-                    }
-                    else
-                    {
-                    	eZDebug::writeDebug('no cookies', 'Redirect');
-                        return;
-                    }
-                }
-            }
-        }
-        else
-        {
-        	eZDebug::writeDebug('isNotArray', 'Session Name');
-            foreach ( $_COOKIE as $cookieName => $cookieValue )
-            {
-                if ( strpos( $cookieName, $SessionName ) !== false )
-                {
-                    $foundSessionName = true;
-                }
-            }
-
-            if ( $foundSessionName )
-            {
-                if ( $redirectRoot and array_key_exists( 'EZREGION', $_COOKIE ) and
-                     is_array( $params ) && count( $params ) == 0 and
-                     file_exists( 'settings/siteaccess/' . $_COOKIE['EZREGION'] ) )
-                {
-                    $redirectWithCookie = true;
-                }
-                else
-                {
-                	eZDebug::writeDebug('redirect', 'no cookies');
-                    return;
-                }
-            }
-        }
-
-        if ( isset( $params[0] ) and file_exists( 'settings/siteaccess/' . $params[0] ) )
-        {
-        	eZDebug::writeDebug('exists', 'Params & siteaccess');
-            $siteaccess = $params[0];
-            if ( array_key_exists( 'EZREGION', $_COOKIE ) and
-                 $_COOKIE['EZREGION'] === $siteaccess )
-            {
-                return;
-            }
-        }
-        else
-        {
-        	eZDebug::writeDebug('Params & siteaccess', 'non-existant');
-            if ( isset( $redirectWithCookie ) && $redirectWithCookie === true )
-            {
-                $siteaccess = $_COOKIE['EZREGION'];
-            }
-            else
-            {
-                $siteaccess = false;
-            }
-        }
-
-        if ( isset( $params[0] ) and $params[0] == 'ezinfo' and isset( $params[1] ) and $params[1] == 'is_alive' )
-        {
-            return;
-        }
-        if ( ( isset( $params[0] ) and
-               $params[0] == 'region' and $params[1] == 'index' ) or
-	           ( $siteaccess and isset( $params[1] ) and
-	             $params[1] == 'region' and isset( $params[1] ) and
-	             $params[2] == 'index' ) )
-        {
-            return;
-        }
-        if ( $siteaccess )
-        {
-            $paramnew = array(
-                $siteaccess ,
-                'region' ,
-                'index' ,
-                $siteaccess
-            );
-        }
-        else
-        {
-            $paramnew = array(
-                'region' ,
-                'index'
-            );
-        }
-        $query = $url->getQuery();
-        $params = $url->path;
-        if ( $siteaccess )
-        {
-            array_shift( $params );
-        }
-
-        if ( count( $params ) )
-        {
-            $query['URL'] = join( '/', $params );
-        }
-        setcookie( "COOKIETEST", 1, time() + 3600 * 24 * 365, '/' );
-        $query['COOKIETEST'] = 1;
-
-        $url->setQuery( $query );
-        $url->params = $paramnew;
-        header( 'Location: ' . $url->buildUrl() );
-        eZExecution::cleanExit();
-    }
-
     static function isBot()
     {
         $bot_list = array(
@@ -319,13 +149,13 @@ class ezxRegion
     }
 
 	public static function getRegionURL( $URLPath, $checkCookie=true ) {
-		if ( array_key_exists( 'EZREGION', $_COOKIE ) && $checkCookie)
+/*		if ( array_key_exists( 'EZREGION', $_COOKIE ) && $checkCookie)
 		{
 			eZDebug::writeDebug( $_COOKIE['EZREGION'], 'region cookie');
 			$selection = $_COOKIE['EZREGION'];
 		}
 		else
-		{
+		{*/
 			$lang = ( isset( $_GET['lang'] ) ) ? $_GET['lang'] : null;
 			if ( array_key_exists( 'TESTIP', $_GET ) and ezxISO3166::validip( $_GET['TESTIP'] ) )
 			{
@@ -344,7 +174,7 @@ class ezxRegion
 				$regiondata = ezxRegion::getRegionData( ezxISO3166::getRealIpAddr() );
 				eZDebug::writeDebug( ezxISO3166::getRealIpAddr(), 'REMOTE IP ADDRESS' );
 			}
-			setcookie("EZREGION", $regiondata['preferred_region'], time()+3600*24*365 , '/' );
+//			setcookie("EZREGION", $regiondata['preferred_region'], time()+3600*24*365 , '/' );
 
 			if ( array_key_exists( 'preferred_region', $regiondata ) )
 			{
@@ -354,7 +184,7 @@ class ezxRegion
 			{
 				$selection = false;
 			}
-		}
+//		}
 
 		$siteini = eZINI::instance( "site.ini");
 		$destinationSiteAccess = $siteini->variable('RegionalSettings', 'LanguageSA');
@@ -385,7 +215,7 @@ class ezxRegion
 		$mathType = (int) $GLOBALS['eZCurrentAccess']['type'];
 
         //Check region only if this cookie is not set
-        self::checkRegion();
+        // self::checkRegion(); // MFH: why do this check?
 
         $ini = eZINI::instance( 'site.ini' );
 
@@ -401,23 +231,29 @@ class ezxRegion
 			$url = self::getRegionURL( $p ) . eZSys::queryString();
 			header( 'Location: ' . $url );
 			eZExecution::cleanExit();
-		} else {
+		}
+/*		else {
 			$currentRegion = eZINI::instance( 'site.ini' )->variable( 'RegionalSettings', 'Locale' ); 
 			setcookie( 'EZREGION', $currentRegion, time()+3600*24*365 , '/' );
-		}
+		}*/
 	}
 
-    public static function checkRegion($forceCheck = false) {
+    public static function checkRegion() {
+
+        $result = array(
+            'RegionWarning' => false,
+            'RedirectSiteAccess' => false,
+            'PreferredRegion' => false
+            );
 
         $ignoreCheck = false;
-        if (!$forceCheck) {
-            $tempUrl = $GLOBALS['eZURIRequestInstance']->OriginalURI;
-            $nodeId = eZURLAliasML::fetchNodeIDByPath( $tempUrl );
 
-            //Check the region only for site pages
-            if(!$nodeId) {
-                $ignoreCheck = true;
-            }
+        $tempUrl = $GLOBALS['eZURIRequestInstance']->OriginalURI;
+        $nodeId = eZURLAliasML::fetchNodeIDByPath( $tempUrl );
+
+        //Check the region only for site pages
+        if(!$nodeId) {
+            $ignoreCheck = true;
         }
 
         if (!$ignoreCheck) {
@@ -429,7 +265,7 @@ class ezxRegion
 
 
             if ($systemIdentifiedSiteAccess != $siteAccessRequested) {
-                eZSession::set('REGIONWARNING', 'TRUE');
+                $result['RegionWarning'] = true;
 
                 //Get system identified SA path for URL
                 $ezURIInstance = $GLOBALS['eZURIRequestInstance'];
@@ -438,16 +274,13 @@ class ezxRegion
 
                 $systemIdentifiedURL = $listOfTranslationsForURL[$systemIdentifiedSiteAccess]['url'];
 
-                eZSession::set('SYSTEMIDENTIFIEDURL', $systemIdentifiedURL);
-                ezSession::set('REDIRECT_SITEACCESS', $systemIdentifiedSiteAccess);
-                eZSession::set('PREFERRED_REGION', $preferredRegion);
+                $result['RedirectSiteAccess'] = $systemIdentifiedSiteAccess;
+                $result['PreferredRegion'] = $preferredRegion;
 
-            } else {
-                eZSession::unsetkey('REGIONWARNING');
-                ezSession::unsetkey('REDIRECT_SITEACCESS');
-                ezSession::unsetkey('PREFERRED_REGION');
             }
         }
+
+        return $result;
 
     }
 }

@@ -7,17 +7,17 @@ $result = array(
     "version" => 1
 );
 
-ezxRegion::checkRegion(true);
+$regionCheckResult = ezxRegion::checkRegion(true);
 
 //Check for 'region mismatch' session variable
-if (eZSession::issetkey("REGIONWARNING")) {
+if ($regionCheckResult['RegionWarning']) {
 
     $href = $_GET['href'];
     if (!$href) {
         return;
     }
 
-    $targetSiteaccess = eZSession::get('REDIRECT_SITEACCESS');
+    $targetSiteaccess = $regionCheckResult['RedirectSiteAccess'];
     $currentSiteaccess = $GLOBALS['eZCurrentAccess']['name'];
 
     $urlPath = preg_replace("/http(s?):\/\/[^\/]*/", "", $href); // remove the http:// and port
@@ -33,7 +33,7 @@ if (eZSession::issetkey("REGIONWARNING")) {
         $result['targetSiteaccess'] = $targetSiteaccess;
 
         // grab translations for dialog fields (for detected locale)
-        $detectedLocale = eZSession::get('PREFERRED_REGION');
+        $detectedLocale = $regionCheckResult['PreferredRegion'];
 
         $countryNames = eZINI::instance( 'site.ini' )->variable( 'RegionalSettings', 'TranslationSA' );
         $preferredRegionName = $countryNames[$targetSiteaccess];
