@@ -238,7 +238,7 @@ class ezxRegion
 		}*/
 	}
 
-    public static function checkRegion() {
+    public static function checkRegion($forceCheck = false) {
 
         $result = array(
             'RegionWarning' => false,
@@ -247,13 +247,15 @@ class ezxRegion
             );
 
         $ignoreCheck = false;
-
         $tempUrl = $GLOBALS['eZURIRequestInstance']->OriginalURI;
-        $nodeId = eZURLAliasML::fetchNodeIDByPath( $tempUrl );
 
-        //Check the region only for site pages
-        if(!$nodeId) {
-            $ignoreCheck = true;
+        if (!$forceCheck) {
+            $nodeId = eZURLAliasML::fetchNodeIDByPath( $tempUrl );
+
+            //Check the region only for site pages
+            if(!$nodeId) {
+                $ignoreCheck = true;
+            }
         }
 
         if (!$ignoreCheck) {
