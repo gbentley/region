@@ -1,5 +1,6 @@
 <script type="text/javascript">
     regionCheckUrl = {'/region/check'|ezurl}
+    siteAccessBaseUrl = {'/'|ezurl}
 </script>
 
 <div id="dialog-confirm" style="display: none;">

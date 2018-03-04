@@ -5,7 +5,7 @@ $(document).ready(function() {
         setRegionWarningShownFlag();
     });
 
-    if (!hasRegionWarningBeenShown()) {
+    if (isCheckForThisRegionRequired(siteAccessBaseUrl) && !hasRegionWarningBeenShown()) {
         checkRegion();
     }
 
@@ -24,9 +24,28 @@ $(document).ready(function() {
         sessionStorage.setItem('regionWarningShown', 'true');
     }
 
-    function checkRegion() {
+    function setAlreadyCheckedForRegion(siteAccessBaseUrl) {
+        var previouslyCheckedSiteAccess = sessionStorage.setItem("lastRegionChecked", siteAccessBaseUrl);
+    }
 
-        console.log("Initiating /region/check");
+
+    function isCheckForThisRegionRequired(siteAccessBaseUrl) {
+        // prevent repeated region checking by storing the last siteaccess checked and only checking if this siteaccess doesn't match that one
+        var previouslyCheckedSiteAccess = sessionStorage.getItem("lastRegionChecked");
+
+        if (previouslyCheckedSiteAccess == null) {
+            // no previous siteaccess check, continue
+            return true;
+        }
+
+        if (previouslyCheckedSiteAccess != siteAccessBaseUrl) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function checkRegion() {
 
         $.ajax({
             url: regionCheckUrl,
@@ -36,11 +55,13 @@ $(document).ready(function() {
             data: { href: window.location.href }
         })
             .done( function(result) {
-                console.log("/region/check AJAX returned. Result: " + JSON.stringify(result));
+                //console.log("/region/check AJAX returned. Result: " + JSON.stringify(result));
 
                 if(result != null) {
                     var response = result;
                     if (typeof response == 'object') {
+
+                        setAlreadyCheckedForRegion(siteAccessBaseUrl);
 
                         var redirectTo = response.redirectTo;
                         if (redirectTo != null) {
