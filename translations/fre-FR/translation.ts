@@ -5,15 +5,15 @@
     <name>region</name>
     <message>
         <source>Select your region</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélectionnez votre région</translation>
     </message>
     <message>
         <source>Go to our %region site</source>
-        <translation type="unfinished"></translation>
+        <translation>Allez sur notre site %region</translation>
     </message>
     <message>
         <source>Continue to our %region site</source>
-        <translation type="unfinished"></translation>
+        <translation>Continuez sur le site %region</translation>
     </message>
 </context>
 </TS>
