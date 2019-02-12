@@ -78,12 +78,11 @@ class ezpLanguageSwitcher implements ezpLanguageSwitcherCapable
     {
         // Grab the first URL element, representing the possible module name
         $urlElements = explode( '/', $url );
-        $moduleName = $urlElements[0];
 
         // Look up for a match in the module list
         $moduleIni = eZINI::instance( 'module.ini' );
         $availableModules = $moduleIni->variable( 'ModuleSettings', 'ModuleList' );
-        return in_array( $moduleName, $availableModules, true );
+        return in_array( $urlElements[0], $availableModules, true ) || in_array( $urlElements[1], $availableModules, true );
     }
 
     /**
@@ -121,20 +120,43 @@ class ezpLanguageSwitcher implements ezpLanguageSwitcherCapable
         {
             $nodeId = eZURLAliasML::fetchNodeIDByPath( $this->origUrl );
         }
-        
+
         $saIni = $this->getSiteAccessIni();
         $siteLanguageList = $saIni->variable( 'RegionalSettings', 'SiteLanguageList' );
         if( count( $siteLanguageList ) === 0 ) {
-        	$siteLanguageList = array( eZINI::instance()->variable( 'RegionalSettings', 'ContentObjectLocale' ) );
+        	$siteLanguageList = array( $saIni->variable( 'RegionalSettings', 'ContentObjectLocale' ) );
         }
         foreach ($siteLanguageList as $siteLanguage)
         {
-        	$destinationElement = eZURLAliasML::fetchByAction( 'eznode', $nodeId, true, false );
+        	$destinationElement = eZURLAliasML::fetchByAction( 'eznode', $nodeId, $siteLanguage, false );
         	if ( !empty( $destinationElement ) || ( isset( $destinationElement[0] ) && ( $destinationElement[0] instanceof eZURLAliasML ) ) )
         	{
         		break;
         	}
         }
+
+		if(
+			count( $saIni->variable( 'RegionalSettings', 'SiteLanguageList' ) ) === 0
+			&& count( $destinationElement ) === 0
+		) {
+			$siteLanguageList   = array( eZINI::instance()->variable( 'RegionalSettings', 'ContentObjectLocale' ) );
+			$destinationElement = eZURLAliasML::fetchByAction( 'eznode', $nodeId, true, false );
+			if( count( $destinationElement ) > 1 ) {
+				$node   = eZContentObjectTreeNode::fetch( $nodeId );
+				$object = $node->attribute( 'object' );
+				$mask   = $object->attribute( 'initial_language_id' );
+/*
+				$lang = eZContentLanguage::fetchByLocale( $siteLanguageList[0] );
+				$mask = (int) $lang->attribute( 'id' );
+*/
+				foreach( $destinationElement as $el ) {
+					if( ( $mask & (int) $el->attribute( 'lang_mask' ) ) > 0 ) {
+						$destinationElement[0] = $el;
+						break;
+					}
+				}
+			}
+		}
 
         if ( empty( $destinationElement ) || ( !isset( $destinationElement[0] ) && !( $destinationElement[0] instanceof eZURLAliasML ) ) )
         {
@@ -243,21 +265,49 @@ class ezpLanguageSwitcher implements ezpLanguageSwitcherCapable
             return array();
         }
 
+		$regionIni = eZINI::instance( 'region.ini' );
+		$directURL = in_array(
+			$regionIni->variable( 'Settings', 'DirectURL' ),
+			array( 'yes', 'true', 'enabled' )
+		);
         $ret = array();
         $translationSiteAccesses = $ini->variable( 'RegionalSettings', 'TranslationSA' );
+        eZDebug::writeDebug($directURL,'directURL');
         foreach ( $translationSiteAccesses as $siteAccessName => $translationName )
         {
-            $switchLanguageLink = "/switchlanguage/to/{$siteAccessName}/";
-            if ( $url !== null && ( is_string( $url ) || is_numeric( $url ) ) )
-            {
-                $switchLanguageLink .= $url;
+        	if( $directURL ) {
+				$langSwitch = self::getLangSwitcher();
+				$langSwitch->setOrigUrl( $url );
+        		$langSwitch->setDestinationSiteAccess( $siteAccessName );
+        		$langSwitch->process();
+        		$switchLanguageLink = $langSwitch->destinationUrl();
+        	} else {
+	            $switchLanguageLink = "/switchlanguage/to/{$siteAccessName}/";
+	            if ( $url !== null && ( is_string( $url ) || is_numeric( $url ) ) )
+	            {
+	                $switchLanguageLink .= $url;
+	            }
             }
             $ret[$siteAccessName] = array( 'url' => $switchLanguageLink,
-                                           'text' => $translationName
+                                           'text' => $translationName,
+            																'locale' => eZSiteAccess::getIni( $siteAccessName )->variable( 'RegionalSettings', 'ContentObjectLocale' )
                                          );
         }
         return $ret;
     }
+
+	public static function getLangSwitcher() {
+		$handlerOptions = new ezpExtensionOptions();
+		$handlerOptions->iniFile = 'site.ini';
+		$handlerOptions->iniSection = 'RegionalSettings';
+		$handlerOptions->iniVariable = 'LanguageSwitcherClass';
+		$handlerOptions->handlerParams = array();
+		return eZExtension::getHandlerClass( $handlerOptions );
+	}
+
+	public function setOrigUrl( $url ) {
+		$this->origUrl = $url;
+	}
 }
 
 ?>
